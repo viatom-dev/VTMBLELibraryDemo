@@ -239,6 +239,29 @@ cd ../path/to/vtmblelibrary
 **发版前必须在二进制模式下编译一次。** 公开头文件漏登记、公开头文件 import
 了私有头文件这两类问题，在源码模式下永远不会暴露。`sync-demo.sh` 会强制走这一步。
 
+### 发版
+
+版本号抄在四个地方，手工维护必然漂移。发版前先跑一致性检查：
+
+```bash
+cd /path/to/vtmblelibrary
+./Scripts/check-versions.sh
+```
+
+它校验私有仓的 `MARKETING_VERSION`（Debug / Release 两处必须相同）、
+源码 podspec、本仓库的二进制 podspec、以及 CHANGELOG 最新发布版本号是否一致。
+`sync-demo.sh` 会先跑它，不一致直接中止。
+
+注意 `MARKETING_VERSION` 会嵌进 framework 的 `Info.plist`，改了版本号必须重新打包，
+否则集成方查到的版本和你以为的不一致。
+
+版本号定稿后，两个仓打同名 tag（统一带 `v` 前缀）：
+
+```bash
+git tag -a v1.0.0 -m "..."   # 私有仓与本仓库都要打
+git push origin v1.0.0
+```
+
 ### 本地提交守卫
 
 Demo 仓装了一个 `pre-commit` 钩子，拦两类「本地能跑、公开出去就坏」的错误：
@@ -255,7 +278,17 @@ Demo 仓装了一个 `pre-commit` 钩子，拦两类「本地能跑、公开出�
 
 ## 版本
 
-XCFramework 版本 1.0.0，支持 `ios-arm64` 与 `ios-arm64_x86_64-simulator`。
+当前 `1.0.0`，对应 tag `v1.0.0`。支持 `ios-arm64` 与 `ios-arm64_x86_64-simulator`。
+
+版本号也嵌在二进制里，反馈问题时可以这样确认你手上是哪一版：
+
+```bash
+/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
+  VTMBLELibrary/VTMBLELibrary.xcframework/ios-arm64/VTMBLELibrary.framework/Info.plist
+```
+
+版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。公开 API 的破坏性变更会升 major，
+届时本文件的「已知限制」一节会同步更新。
 
 ## 许可
 
