@@ -8,7 +8,6 @@
 #ifndef VTMWBP02Header_h
 #define VTMWBP02Header_h
 
-#import <VTMBLELibrary/VTMWBP02Enum.h>
 #import <VTMBLELibrary/VTMWBP02BLESession.h>
 #import <VTMBLELibrary/VTMWBP02Object.h>
 

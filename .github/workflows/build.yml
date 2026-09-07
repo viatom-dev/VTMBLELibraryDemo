@@ -36,7 +36,6 @@ jobs:
           VTMPM10Header.h
           VTMPM10Object.h
           VTMWBP02BLESession.h
-          VTMWBP02Enum.h
           VTMWBP02Header.h
           VTMWBP02Object.h
           EOF
