@@ -21,12 +21,14 @@ Pod::Spec.new do |s|
     Currently supports the WBP02 ambulatory blood pressure monitor and the PM10 handheld ECG.
   DESC
 
-  # TODO(发布前确认): 换成实际的 GitHub 组织与仓库名。
-  s.homepage         = 'https://github.com/viatomtech/VTMBLELibrary-Demo'
+  s.homepage         = 'https://github.com/viatom-dev/VTMBLELibraryDemo'
   s.author           = { 'Viatom' => 'ios@viatomtech.com' }
   s.license          = { :type => 'Proprietary', :file => '../LICENSE' }
 
-  s.source           = { :http => "https://github.com/viatomtech/VTMBLELibrary-Demo/releases/download/v#{s.version}/VTMBLELibrary.xcframework.zip" }
+  # 本地集成（`pod 'VTMBLELibrary', :path => 'VTMBLELibrary'`）不会用到 s.source。
+  # 它是为将来把 XCFramework 挂成 Release asset 分发准备的，届时 tag 名需与
+  # s.version 对应。
+  s.source           = { :http => "https://github.com/viatom-dev/VTMBLELibraryDemo/releases/download/v#{s.version}/VTMBLELibrary.xcframework.zip" }
 
   s.ios.deployment_target = '13.0'
   s.requires_arc     = true

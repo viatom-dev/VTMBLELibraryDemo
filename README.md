@@ -19,8 +19,8 @@ SDK 源码不在本仓库内。
 需要 Xcode 15 或更高版本、iOS 13.0+ 的**真机**。
 
 ```bash
-git clone <本仓库地址>
-cd VTMBLELibrary-Demo
+git clone https://github.com/viatom-dev/VTMBLELibraryDemo.git
+cd VTMBLELibraryDemo
 pod install
 open VTMBLEDemo.xcworkspace
 ```
@@ -76,7 +76,11 @@ pod 'VTMBLELibrary', :path => 'VTMBLELibrary'
 
 ### Swift Package Manager
 
-在 Xcode 里 File > Add Package Dependencies，填本仓库地址。
+在 Xcode 里 File > Add Package Dependencies，填：
+
+```
+https://github.com/viatom-dev/VTMBLELibraryDemo.git
+```
 
 ### 手动
 
@@ -220,7 +224,7 @@ VTMBLELibrary 的任何方法。
 
 ```bash
 # 1. 在私有仓改代码，用源码模式在 Demo 里断点调试
-cd VTMBLELibrary-Demo
+cd VTMBLELibraryDemo
 VTM_BLE_SDK_SOURCE=../path/to/vtmblelibrary pod install
 
 # 2. 改完，在私有仓提交并推到内网
@@ -244,7 +248,7 @@ Demo 仓装了一个 `pre-commit` 钩子，拦两类「本地能跑、公开出�
 钩子在 `.git/hooks/` 下，不随仓库分发。换机器或重新 clone 后重新装：
 
 ```bash
-./Scripts/install-demo-hooks.sh /path/to/VTMBLELibrary-Demo
+./Scripts/install-demo-hooks.sh /path/to/VTMBLELibraryDemo
 ```
 
 ---

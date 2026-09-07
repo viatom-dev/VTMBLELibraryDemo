@@ -1,0 +1,118 @@
+name: Build
+
+# 这个 workflow 验证的是「第三方 clone 下来能不能跑」。
+#
+# 维护者本机永远有私有源码，验不出这件事：源码模式下公开头文件漏登记、
+# 公开头文件 import 了私有头文件，全都不会报错。CI 从一个干净的 checkout
+# 出发，跑的就是集成方的真实路径。
+#
+# 不需要任何 secret，fork 提的 PR 也能跑。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify-distribution:
+    name: 分发件校验
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 公开清单。与私有仓 project.pbxproj 的 publicHeaders 保持一致。
+      # 多出的头文件会泄露内部协议细节，少了的会让集成方 import 不到。
+      - name: XCFramework 只含公开头文件
+        run: |
+          expected=$(cat <<'EOF'
+          VTMBLECoreSession.h
+          VTMBLELibrary.h
+          VTMBLELogger.h
+          VTMPM10BLESession.h
+          VTMPM10Enum.h
+          VTMPM10Header.h
+          VTMPM10Object.h
+          VTMWBP02BLESession.h
+          VTMWBP02Enum.h
+          VTMWBP02Header.h
+          VTMWBP02Object.h
+          EOF
+          )
+          expected=$(printf '%s\n' "$expected" | sed 's/^[[:space:]]*//' | sort)
+
+          status=0
+          while IFS= read -r headers_dir; do
+            actual=$(find "$headers_dir" -name '*.h' -exec basename {} \; | sort -u)
+            if [ "$actual" != "$expected" ]; then
+              echo "::error::$headers_dir 的 Headers 与公开清单不一致"
+              diff <(printf '%s\n' "$expected") <(printf '%s\n' "$actual") \
+                   --label 期望 --label 实际 -u || true
+              status=1
+            fi
+          done < <(find VTMBLELibrary/VTMBLELibrary.xcframework -type d -name Headers)
+          exit $status
+
+      # 源码模式下 pod install 会把私有仓路径写进 Podfile.lock。
+      # 那份 lock 提交出去，第三方 clone 后 pod install 必然失败。
+      - name: Podfile.lock 未指向仓库外路径
+        run: |
+          if grep -nE ':path: *(\.\./|/)' Podfile.lock; then
+            echo "::error::Podfile.lock 处于源码模式，第三方无法 pod install"
+            exit 1
+          fi
+
+      - name: XCFramework 切片完整
+        run: |
+          for slice in ios-arm64 ios-arm64_x86_64-simulator; do
+            path="VTMBLELibrary/VTMBLELibrary.xcframework/$slice"
+            if [ ! -d "$path" ]; then
+              echo "::error::缺少切片 $slice"
+              exit 1
+            fi
+          done
+          echo "切片齐全，总体积 $(du -sh VTMBLELibrary/VTMBLELibrary.xcframework | cut -f1)"
+
+  build-cocoapods:
+    name: CocoaPods 集成
+    runs-on: macos-15
+    needs: verify-distribution
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 环境信息
+        run: |
+          xcodebuild -version
+          pod --version
+
+      # 走的是 README 里让第三方执行的同一条命令，不带 VTM_BLE_SDK_SOURCE，
+      # 也就是二进制模式。
+      - name: pod install
+        run: pod install
+
+      - name: 编译 Demo（模拟器）
+        run: |
+          xcodebuild build \
+            -workspace VTMBLEDemo.xcworkspace \
+            -scheme VTMBLEDemo \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+  validate-spm:
+    name: SPM 清单校验
+    runs-on: macos-15
+    needs: verify-distribution
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 只校验清单能被解析、binaryTarget 路径存在。
+      # 注意这一步**不验证** `#import <VTMBLELibrary/...>` 在 SPM 下能否成功，
+      # 那需要一个真实的 iOS 消费方工程。
+      - name: swift package describe
+        run: swift package describe --type text
