@@ -1,0 +1,6 @@
+framework module VTMBLELibrary {
+  umbrella header "VTMBLELibrary.h"
+  export *
+
+  module * { export * }
+}

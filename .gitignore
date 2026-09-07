@@ -1,0 +1,28 @@
+## macOS
+.DS_Store
+
+## Xcode 用户级状态
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+## 构建产物
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## CocoaPods
+# Pods/ 由 `pod install` 生成，不入库。Podfile.lock 入库，用于锁定版本。
+Pods/
+*.xcworkspace
+
+## Swift Package Manager
+.build/
+.swiftpm/
+
+# 注意：VTMBLELibrary/VTMBLELibrary.xcframework 必须入库，
+# 它是本仓库对外分发的 SDK 二进制，不要加进忽略列表。

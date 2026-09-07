@@ -1,0 +1,16 @@
+PODS:
+  - VTMBLELibrary (1.0.0)
+
+DEPENDENCIES:
+  - VTMBLELibrary (from `VTMBLELibrary`)
+
+EXTERNAL SOURCES:
+  VTMBLELibrary:
+    :path: VTMBLELibrary
+
+SPEC CHECKSUMS:
+  VTMBLELibrary: 99049f5fbe7cce1c4e8811b572f1e128b56a0974
+
+PODFILE CHECKSUM: 6fe04e34cebf2c46dcace1de073dc0c929db64cd
+
+COCOAPODS: 1.16.2
