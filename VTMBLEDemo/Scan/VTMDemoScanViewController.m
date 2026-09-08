@@ -7,6 +7,7 @@
 #import "VTMDemoCentralManager.h"
 #import "VTMDemoWBP02ViewController.h"
 #import "VTMDemoPM10ViewController.h"
+#import "VTMDemoJMRBPViewController.h"
 #import "VTMDemoLogViewController.h"
 
 static NSString *const kCellID = @"VTMDemoScanCell";
@@ -57,10 +58,12 @@ static NSString *const kCellID = @"VTMDemoScanCell";
                                                action:@selector(toggleScan)];
     self.navigationItem.leftBarButtonItem = _scanItem;
 
-    _kindControl = [[UISegmentedControl alloc] initWithItems:@[
-        VTMDemoDeviceKindName(VTMDemoDeviceKindWBP02),
-        VTMDemoDeviceKindName(VTMDemoDeviceKindPM10),
-    ]];
+    // 按型号总数生成，新增型号只要在 VTMDemoDeviceKind 里加一项即可。
+    NSMutableArray <NSString *> *kindTitles = [NSMutableArray arrayWithCapacity:VTMDemoDeviceKindCount];
+    for (NSInteger kind = 0; kind < VTMDemoDeviceKindCount; kind++) {
+        [kindTitles addObject:VTMDemoDeviceKindName((VTMDemoDeviceKind)kind)];
+    }
+    _kindControl = [[UISegmentedControl alloc] initWithItems:kindTitles];
     _kindControl.selectedSegmentIndex = 0;
     _kindControl.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:_kindControl];
@@ -143,7 +146,11 @@ static NSString *const kCellID = @"VTMDemoScanCell";
 }
 
 - (VTMDemoDeviceKind)selectedKind {
-    return self.kindControl.selectedSegmentIndex == 1 ? VTMDemoDeviceKindPM10 : VTMDemoDeviceKindWBP02;
+    NSInteger index = self.kindControl.selectedSegmentIndex;
+    if (index < 0 || index >= VTMDemoDeviceKindCount) {
+        return VTMDemoDeviceKindWBP02;
+    }
+    return (VTMDemoDeviceKind)index;
 }
 
 - (void)updateStateLabel {
@@ -193,6 +200,10 @@ static NSString *const kCellID = @"VTMDemoScanCell";
         case VTMDemoDeviceKindPM10:
             deviceVC = [[VTMDemoPM10ViewController alloc] initWithPeripheral:peripheral
                                                              centralManager:manager];
+            break;
+        case VTMDemoDeviceKindJMRBP:
+            deviceVC = [[VTMDemoJMRBPViewController alloc] initWithPeripheral:peripheral
+                                                              centralManager:manager];
             break;
     }
     [self.navigationController pushViewController:deviceVC animated:YES];

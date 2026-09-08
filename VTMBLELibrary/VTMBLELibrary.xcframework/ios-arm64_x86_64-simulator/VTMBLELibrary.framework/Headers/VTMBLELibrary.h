@@ -19,3 +19,4 @@ FOUNDATION_EXPORT const unsigned char VTMBLELibraryVersionString[];
 #import <VTMBLELibrary/VTMBLECoreSession.h>
 #import <VTMBLELibrary/VTMWBP02Header.h>
 #import <VTMBLELibrary/VTMPM10Header.h>
+#import <VTMBLELibrary/VTMJMRBPHeader.h>

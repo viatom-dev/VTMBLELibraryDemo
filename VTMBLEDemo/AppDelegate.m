@@ -39,7 +39,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     logger.level = VTMBLELogLevelDebug;
 
     // 镜像到 os_log，subsystem 为 com.viatom.VTMBLELibrary。
-    // 在 Console.app 里按 category（Core / WBP02 / PM10）过滤可以实时看流量。
+    // 在 Console.app 里按 category（Core / WBP02 / PM10 / JMRBP）过滤可以实时看流量。
     logger.consoleOutputEnabled = YES;
 
     // 内存环形缓冲。问题发生之后再回捞现场，是排查偶发问题的主要手段。

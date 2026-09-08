@@ -14,7 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, VTMDemoDeviceKind) {
     VTMDemoDeviceKindWBP02,
     VTMDemoDeviceKindPM10,
+    VTMDemoDeviceKindJMRBP,
 };
+
+/// 型号总数。扫描页的分段控件按它生成，新增型号不用再改扫描页。
+FOUNDATION_EXPORT const NSInteger VTMDemoDeviceKindCount;
 
 FOUNDATION_EXPORT NSString *VTMDemoDeviceKindName(VTMDemoDeviceKind kind);
 

@@ -5,10 +5,13 @@
 
 #import "VTMDemoCentralManager.h"
 
+const NSInteger VTMDemoDeviceKindCount = VTMDemoDeviceKindJMRBP + 1;
+
 NSString *VTMDemoDeviceKindName(VTMDemoDeviceKind kind) {
     switch (kind) {
         case VTMDemoDeviceKindWBP02: return @"WBP02";
         case VTMDemoDeviceKindPM10:  return @"PM10";
+        case VTMDemoDeviceKindJMRBP: return @"JMRBP";
     }
     return @"Unknown";
 }
