@@ -1,5 +1,7 @@
 # VTMBLELibrary Demo
 
+**中文** | [English](README.en.md)
+
 Viatom 医疗设备 iOS 蓝牙 SDK 的官方示例工程。
 
 本仓库包含一个可直接运行的示例 App，以及编译好的 `VTMBLELibrary.xcframework`。
@@ -11,6 +13,7 @@ SDK 源码不在本仓库内。
 | --- | --- |
 | WBP02 | 动态血压计 |
 | PM10 | 手持心电 |
+| JMRBP | 蓝牙血压计 |
 
 ---
 
@@ -38,14 +41,18 @@ open VTMBLEDemo.xcworkspace
 
 ## 示例 App 怎么用
 
-1. 顶部选设备型号（WBP02 / PM10）—— 决定创建哪个 session 类
+1. 顶部选设备型号（WBP02 / PM10 / JMRBP）—— 决定创建哪个 session 类
 2. 需要的话在输入框里填设备名关键字过滤
 3. 点「开始扫描」，从列表里选一台设备，点一下即开始连接
 4. 连上后自动进入该设备的指令页
 5. 指令页上半屏是可点的指令列表，下半屏实时显示每次调用的结果
 6. 右上角「日志」页可以调 SDK 日志等级、开脱敏、导出日志文件
 
-WBP02 请先点「握手」，其余指令都依赖握手完成。PM10 不需要握手。
+WBP02 请先点「握手」，其余指令都依赖握手完成。PM10 与 JMRBP 不需要握手。
+
+JMRBP 页的第 5 组「待实测项」是为真机验证准备的：协议文档没写清的几个点（记录到达顺序、
+设备确认是否等价于「标记已上传」、中断后是否断点续传）各有一个按钮，点一下就能在下半屏
+读到结论。把日志等级开到 `Debug` 一起看效果更好。
 
 ---
 
@@ -59,6 +66,7 @@ WBP02 请先点「握手」，其余指令都依赖握手完成。PM10 不需要
 | `VTMDemoDeviceViewController.m` | session 的完整生命周期：创建 → 绑定外设 → 等部署完成 → 发指令 → 页面销毁时摘回调 |
 | `VTMDemoWBP02ViewController.m` | WBP02 全部对外 API，含握手链、编程写入、实时数据主动上报 |
 | `VTMDemoPM10ViewController.m` | PM10 全部对外 API，含病例列表分页拉取、波形下载与进度回调 |
+| `VTMDemoJMRBPViewController.m` | JMRBP 全部对外 API。这个设备没有握手、也几乎没有请求-应答配对，是「单向指令 + 主动上报」这种形态的参考；另含存储记录的幂等全量同步写法 |
 | `VTMDemoLogViewController.m` | `VTMBLELogger` 的用法：等级、脱敏、实时订阅、导出文件 |
 | `AppDelegate.m` | 启动时配置 SDK 日志 |
 
@@ -203,7 +211,27 @@ VTMBLELibrary 的任何方法。
 - **`peripheral` 是带副作用的 setter**，不是普通的存值属性。
 - **nullability 标注与实际行为不一致**，见上面「callback 参数可能为 nil」。
 - **PM10 波形解析归调用方。** `-requestCaseDataWithInfo:progressHandle:callback:`
-  回调给的是原始 `NSData`。
+  回调给的是原始 `NSData`，用 `VTMPM10CaseDataMdoel` 转成 µV 序列。转出来的
+  `infoModel` **SDK 从不赋值，恒为 `nil`**，需要关联病例信息请自己填。
+- **PM10 拉病例列表请统一用 `VTMPM10ReqCaseInfoAll`。** 设备只给「总条数」与
+  「未上传条数」两个计数，SDK 拿总条数当收齐的判据，于是 `Uploaded` 可能永远凑不满
+  而不回调，`Target` 也不是「只取这一条」而是从该序号继续往后拉。拿到列表后在你这边
+  按 `uploadState` / `serialNumber` 过滤。
+- **PM10 `supportLanguages` 后八种语言的判定待确认。** 三组语言位掩码中第二组与第三组
+  读的是同一个字节，表现为 `PL`~`DE` 与 `JP`~`NL` 恒同时出现或同时缺失，暂时不要依赖。
+- **JMRBP 读取存储记录不保证单次拉全。** 协议既不给总条数也不给结束标志，SDK 只能靠
+  静默超时收尾，`Idle` 不等于「已拉全」。必须每次连上都无条件拉一次，按槽位 + 时间
+  去重合并，不要维护同步游标 —— 一次中断过的同步若推进了游标，更早的记录会被永久跳过。
+- **JMRBP 的启停指令没有 callback。** 协议未定义这几条指令的应答，所以 SDK 不提供
+  回调（不给不存在的应答硬凑一个）。是否真的动起来请看压力上报。
+- **JMRBP 的确认（ACK）等于告诉设备「这条你可以忘了」。** 设备收到确认后把该条记录
+  标记为已上传，既不重发也不会转存为可再次读取的存储记录 —— 这条数据从此拿不回来。
+  若你是在回调里才落库、而落库可能失败，请把 `acknowledgesMeasurementResult` 置为 `NO`，
+  落库成功后再调 `-acknowledgeMeasurementResult`。Demo 的 JMRBP 页第 4 组可以直接切换。
+- **JMRBP 当前读不到存储记录。** 样机对读取指令零响应（厂商 demo 同样读不到），
+  怀疑该指令有协议文档未描述的前置条件，已在向厂商确认。
+- **JMRBP 有几个字节的含义待实测确认**，压力换算系数与四个 `reserved` 字节属于此类，
+  当前按原始码值透出。
 - **结论文案只内置 ZH / EN 两种**，而 PM10 设备本身支持 18 种语言。需要覆盖更多
   语言时，请拿 `resultCodes` 的原始码值自己做本地化。
 - 部分已发布 API 存在拼写错误（`getBatteyInfo:`、`daylightEntTime`、
