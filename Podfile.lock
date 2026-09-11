@@ -1,5 +1,5 @@
 PODS:
-  - VTMBLELibrary (1.0.0)
+  - VTMBLELibrary (1.1.0)
 
 DEPENDENCIES:
   - VTMBLELibrary (from `VTMBLELibrary`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: VTMBLELibrary
 
 SPEC CHECKSUMS:
-  VTMBLELibrary: 4d9eb773ef3b1a538002311616032460136d4225
+  VTMBLELibrary: d08cc67dffec7e1da3af66f1f702c9e293db29a7
 
 PODFILE CHECKSUM: 6fe04e34cebf2c46dcace1de073dc0c929db64cd
 

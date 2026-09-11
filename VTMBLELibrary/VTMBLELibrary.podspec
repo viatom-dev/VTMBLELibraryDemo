@@ -11,7 +11,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'VTMBLELibrary'
-  s.version          = '1.0.0'
+  s.version          = '1.1.0'
   s.summary          = 'iOS Bluetooth SDK for Viatom medical devices'
 
   s.description      = <<~DESC

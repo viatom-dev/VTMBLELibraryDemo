@@ -286,8 +286,8 @@ cd /path/to/vtmblelibrary
 版本号定稿后，两个仓打同名 tag（统一带 `v` 前缀）：
 
 ```bash
-git tag -a v1.0.0 -m "..."   # 私有仓与本仓库都要打
-git push origin v1.0.0
+git tag -a v1.1.0 -m "..."   # 私有仓与本仓库都要打
+git push origin v1.1.0
 ```
 
 ### 本地提交守卫
@@ -306,7 +306,7 @@ Demo 仓装了一个 `pre-commit` 钩子，拦两类「本地能跑、公开出�
 
 ## 版本
 
-当前 `1.0.0`，对应 tag `v1.0.0`。支持 `ios-arm64` 与 `ios-arm64_x86_64-simulator`。
+当前 `1.1.0`，对应 tag `v1.1.0`。支持 `ios-arm64` 与 `ios-arm64_x86_64-simulator`。
 
 版本号也嵌在二进制里，反馈问题时可以这样确认你手上是哪一版：
 

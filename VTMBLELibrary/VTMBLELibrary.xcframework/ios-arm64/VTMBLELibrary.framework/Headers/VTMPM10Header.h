@@ -4,6 +4,9 @@
 //
 //  Created by yangweichao on 2025/11/7.
 //
+//  PM10（手持心电）模块的聚合头文件。
+//  Aggregate header of the PM10 module (handheld ECG recorder).
+//
 
 #ifndef VTMPM10Header_h
 #define VTMPM10Header_h
